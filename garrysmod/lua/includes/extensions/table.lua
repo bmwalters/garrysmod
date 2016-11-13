@@ -466,135 +466,74 @@ function table.ClearKeys( Table, bSaveKey )
 
 end
 
-local function fnPairsSorted( pTable, Index )
+local function GenericSortedPairs(tab, sortfunc)
+	local keys = table.GetKeys(tab)
 
-	if ( Index == nil ) then
-		Index = 1
-	else
-		for k, v in pairs( pTable.__SortedIndex ) do
-			if ( v == Index ) then
-				Index = k + 1
-				break
-			end
+	table.sort(keys, sortfunc)
+
+	local i = 0
+
+	return function()
+		i = i + 1
+		if i <= #keys then
+			local key = keys[i]
+			return key, tab[key]
 		end
 	end
-
-	local Key = pTable.__SortedIndex[ Index ]
-	if ( !Key ) then
-		pTable.__SortedIndex = nil
-		return
-	end
-
-	Index = Index + 1
-
-	return Key, pTable[ Key ]
-
 end
 
 --[[---------------------------------------------------------
 	A Pairs function
 		Sorted by TABLE KEY
 -----------------------------------------------------------]]
-function SortedPairs( pTable, Desc )
-
-	pTable = table.Copy( pTable )
-
-	local SortedIndex = {}
-	for k, v in pairs( pTable ) do
-		table.insert( SortedIndex, k )
-	end
-
-	if ( Desc ) then
-		table.sort( SortedIndex, function( a, b ) return a > b end )
-	else
-		table.sort( SortedIndex )
-	end
-
-	pTable.__SortedIndex = SortedIndex
-
-	return fnPairsSorted, pTable, nil
-
+function SortedPairs(tab, descending)
+	return GenericSortedPairs(tab, function(a, b)
+		if descending then
+			return a > b
+		else
+			return a < b
+		end
+	end)
 end
 
 --[[---------------------------------------------------------
 	A Pairs function
 		Sorted by VALUE
 -----------------------------------------------------------]]
-function SortedPairsByValue( pTable, Desc )
-
-	pTable = table.Copy( pTable )
-
-	local SortedIndex = {}
-	for k, v in pairs( pTable ) do
-		table.insert( SortedIndex, { key = k, val = v } )
-	end
-
-	if ( Desc ) then
-		table.sort( SortedIndex, function( a, b ) return a.val > b.val end )
-	else
-		table.sort( SortedIndex, function( a, b ) return a.val < b.val end )
-	end
-
-	for k, v in pairs( SortedIndex ) do
-		SortedIndex[ k ] = v.key
-	end
-
-	pTable.__SortedIndex = SortedIndex
-
-	return fnPairsSorted, pTable, nil
-
+function SortedPairsByValue(tab, descending)
+	return GenericSortedPairs(tab, function(a, b)
+		if descending then
+			return tab[a] > tab[b]
+		else
+			return tab[a] < tab[b]
+		end
+	end)
 end
 
 --[[---------------------------------------------------------
 	A Pairs function
 		Sorted by Member Value (All table entries must be a table!)
 -----------------------------------------------------------]]
-function SortedPairsByMemberValue( pTable, pValueName, Desc )
-
-	pTable = table.Copy( pTable )
-	Desc = Desc or false
-
-	local pSortedTable = table.ClearKeys( pTable, true )
-
-	table.SortByMember( pSortedTable, pValueName, !Desc )
-
-	local SortedIndex = {}
-	for k, v in ipairs( pSortedTable ) do
-		table.insert( SortedIndex, v.__key )
-	end
-
-	pTable.__SortedIndex = SortedIndex
-
-	return fnPairsSorted, pTable, nil
-
+function SortedPairsByMemberValue(tab, valuename, descending)
+	return GenericSortedPairs(tab, function(a, b)
+		if descending then
+			return tab[a][valuename] > tab[b][valuename]
+		else
+			return tab[a][valuename] < tab[b][valuename]
+		end
+	end)
 end
 
 --[[---------------------------------------------------------
 	A Pairs function
 -----------------------------------------------------------]]
-function RandomPairs( pTable, Desc )
-
-	pTable = table.Copy( pTable )
-
-	local SortedIndex = {}
-	for k, v in pairs( pTable ) do
-		table.insert( SortedIndex, { key = k, val = math.random( 1, 1000 ) } )
-	end
-
-	if ( Desc ) then
-		table.sort( SortedIndex, function(a,b) return a.val>b.val end )
-	else
-		table.sort( SortedIndex, function(a,b) return a.val<b.val end )
-	end
-
-	for k, v in pairs( SortedIndex ) do
-		SortedIndex[ k ] = v.key
-	end
-
-	pTable.__SortedIndex = SortedIndex
-
-	return fnPairsSorted, pTable, nil
-
+function RandomPairs(tab)
+	local rand_values = {}
+	return GenericSortedPairs(tab, function(a, b)
+		rand_values[a] = rand_values[a] or math.random()
+		rand_values[b] = rand_values[b] or math.random()
+		return rand_values[a] > rand_values[b]
+	end)
 end
 
 --[[---------------------------------------------------------
