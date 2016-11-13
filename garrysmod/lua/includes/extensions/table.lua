@@ -488,8 +488,9 @@ local function GenericSortedPairs( t, sortfunc )
 end
 
 --[[---------------------------------------------------------
-	A Pairs function
-		Sorted by TABLE KEY
+	Name: SortedPairs( table, descending )
+	Desc: A pairs function that calls in a sorted order, by
+		table key
 -----------------------------------------------------------]]
 function SortedPairs( t, descending )
 
@@ -506,8 +507,9 @@ function SortedPairs( t, descending )
 end
 
 --[[---------------------------------------------------------
-	A Pairs function
-		Sorted by VALUE
+	Name: SortedPairsByValue( table, descending )
+	Desc: A pairs function that calls in a sorted order, by
+		table value
 -----------------------------------------------------------]]
 function SortedPairsByValue( t, descending )
 
@@ -524,8 +526,9 @@ function SortedPairsByValue( t, descending )
 end
 
 --[[---------------------------------------------------------
-	A Pairs function
-		Sorted by Member Value (All table entries must be a table!)
+	Name: SortedPairsByMemberValue( table, valuename, descending )
+	Desc: A pairs function that calls in a sorted order, by
+		the member with the given valuename of each value table
 -----------------------------------------------------------]]
 function SortedPairsByMemberValue( t, valuename, descending )
 
@@ -542,7 +545,8 @@ function SortedPairsByMemberValue( t, valuename, descending )
 end
 
 --[[---------------------------------------------------------
-	A Pairs function
+	Name: SortedPairsByValue( table, descending )
+	Desc: A pairs function that calls in a random order
 -----------------------------------------------------------]]
 function RandomPairs( t )
 
