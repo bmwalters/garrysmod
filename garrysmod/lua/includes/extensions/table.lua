@@ -466,74 +466,97 @@ function table.ClearKeys( Table, bSaveKey )
 
 end
 
-local function GenericSortedPairs(tab, sortfunc)
-	local keys = table.GetKeys(tab)
+local function GenericSortedPairs( t, sortfunc )
 
-	table.sort(keys, sortfunc)
+	local keys = table.GetKeys( t )
+
+	table.sort( keys, sortfunc )
 
 	local i = 0
 
 	return function()
+
 		i = i + 1
-		if i <= #keys then
-			local key = keys[i]
-			return key, tab[key]
+
+		if ( i <= #keys ) then
+			local key = keys[ i ]
+			return key, t[ key ]
 		end
+
 	end
+
 end
 
 --[[---------------------------------------------------------
 	A Pairs function
 		Sorted by TABLE KEY
 -----------------------------------------------------------]]
-function SortedPairs(tab, descending)
-	return GenericSortedPairs(tab, function(a, b)
-		if descending then
+function SortedPairs( t, descending )
+
+	return GenericSortedPairs( t, function( a, b )
+
+		if ( descending ) then
 			return a > b
 		else
 			return a < b
 		end
-	end)
+
+	end )
+
 end
 
 --[[---------------------------------------------------------
 	A Pairs function
 		Sorted by VALUE
 -----------------------------------------------------------]]
-function SortedPairsByValue(tab, descending)
-	return GenericSortedPairs(tab, function(a, b)
-		if descending then
-			return tab[a] > tab[b]
+function SortedPairsByValue( t, descending )
+
+	return GenericSortedPairs( t, function( a, b )
+
+		if ( descending ) then
+			return t[ a ] > t[ b ]
 		else
-			return tab[a] < tab[b]
+			return t[ a ] < t[ b ]
 		end
-	end)
+
+	end )
+
 end
 
 --[[---------------------------------------------------------
 	A Pairs function
 		Sorted by Member Value (All table entries must be a table!)
 -----------------------------------------------------------]]
-function SortedPairsByMemberValue(tab, valuename, descending)
-	return GenericSortedPairs(tab, function(a, b)
-		if descending then
-			return tab[a][valuename] > tab[b][valuename]
+function SortedPairsByMemberValue( t, valuename, descending )
+
+	return GenericSortedPairs( t, function( a, b )
+
+		if ( descending ) then
+			return t[ a ][ valuename ] > t[ b ][ valuename ]
 		else
-			return tab[a][valuename] < tab[b][valuename]
+			return t[ a ][ valuename ] < t[ b ][ valuename ]
 		end
-	end)
+
+	end )
+
 end
 
 --[[---------------------------------------------------------
 	A Pairs function
 -----------------------------------------------------------]]
-function RandomPairs(tab)
+function RandomPairs( t )
+
 	local rand_values = {}
-	return GenericSortedPairs(tab, function(a, b)
-		rand_values[a] = rand_values[a] or math.random()
-		rand_values[b] = rand_values[b] or math.random()
-		return rand_values[a] > rand_values[b]
-	end)
+
+	return GenericSortedPairs( t, function( a, b )
+
+		rand_values[ a ] = rand_values[ a ] or math.random()
+		rand_values[ b ] = rand_values[ b ] or math.random()
+
+		return rand_values[ a ] > rand_values[ b ]
+
+	end )
+
 end
 
 --[[---------------------------------------------------------
