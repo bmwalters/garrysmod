@@ -200,12 +200,6 @@ end
 
 ---- Styling
 
-local bgcolor = {
-   [ROLE_TRAITOR]   = Color(150, 0, 0, 200),
-   [ROLE_DETECTIVE] = Color(0, 0, 150, 200),
-   [ROLE_INNOCENT]  = Color(0, 50,  0, 200)
-};
-
 -- Table of styles that can take a string and display it in some position,
 -- colour, etc.
 LANG.Styles = {
@@ -215,8 +209,7 @@ LANG.Styles = {
              end,
 
    rolecolour = function(text)
-                   MSTACK:AddColoredBgMessage(text,
-                                              bgcolor[ LocalPlayer():GetRole() ])
+                   MSTACK:AddRoleMessage(text, LocalPlayer():GetRole())
                    print("TTT:   " .. text)
                 end,
 

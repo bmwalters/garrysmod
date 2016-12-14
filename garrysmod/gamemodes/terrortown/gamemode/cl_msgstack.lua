@@ -41,36 +41,25 @@ MSTACK.msgcolors = {
    generic_bg = Color(0, 0, 0, 200)
 };
 
+MSTACK.rolecolors = {
+   [ROLE_TRAITOR]   = Color(150, 0, 0, 200),
+   [ROLE_DETECTIVE] = Color(0, 0, 150, 200),
+   [ROLE_INNOCENT]  = Color(0, 50,  0, 200)
+};
+
 -- Total width we take up on screen, for other elements to read
 MSTACK.width = msg_width + margin
 
-function MSTACK:AddColoredMessage(text, clr)
+function MSTACK:AddMessage(text, color, background_color)
    local item = {}
-   item.text = text
-   item.col = clr
-   item.bg  = self.msgcolors.generic_bg
 
-   self:AddMessageEx(item)
-end
-
-function MSTACK:AddColoredBgMessage(text, bg_clr)
-   local item = {}
-   item.text = text
-   item.col  = self.msgcolors.generic_text
-   item.bg   = bg_clr
-
-   self:AddMessageEx(item)
-end
-
--- Internal
-function MSTACK:AddMessageEx(item)
-   item.col = table.Copy(item.col or self.msgcolors.generic_text)
+   item.col = table.Copy(color or self.msgcolors.generic_text)
    item.col.a_max = item.col.a
 
-   item.bg  = table.Copy(item.bg or self.msgcolors.generic_bg)
+   item.bg  = table.Copy(background_color or self.msgcolors.generic_bg)
    item.bg.a_max = item.bg.a
 
-   item.text = self:WrapText(item.text, text_width)
+   item.text = self:WrapText(text, text_width)
    -- Height depends on number of lines, which is equal to number of table
    -- elements of the wrapped item.text
    item.height = (#item.text * draw.GetFontHeight(self.msgfont)) + (margin * (1 + #item.text))
@@ -90,12 +79,8 @@ function MSTACK:AddMessageEx(item)
    self.last = item.time
 end
 
--- Add a given message to the stack, will be rendered in a different color if it
--- is a special traitor-only message that traitors should pay attention to.
--- Use the newer AddColoredMessage if you want special colours.
-function MSTACK:AddMessage(text, traitor_only)
-   local color = traitor_only and self.msgcolors.traitor_bg or self.msgcolors.generic_bg
-   self:AddColoredBgMessage(text, color)
+function MSTACK:AddRoleMessage(text, role)
+   self:AddMessage(text, self.msgcolors.generic_text, self.rolecolors[role])
 end
 
 -- Oh joy, I get to write my own wrapping function. Thanks Lua!
@@ -203,9 +188,11 @@ local function ReceiveGameMsg()
    local text = net.ReadString()
    local traitor_only = net.ReadBool()
 
+   local color = traitor_only and MSTACK.msgcolors.traitor_bg or MSTACK.msgcolors.generic_bg
+
    print(text)
 
-   MSTACK:AddMessage(text, traitor_only)
+   MSTACK:AddMessage(text, color)
 end
 net.Receive("TTT_GameMsg", ReceiveGameMsg)
 
@@ -215,6 +202,6 @@ local function ReceiveCustomMsg()
 
    print(text)
 
-   MSTACK:AddColoredMessage(text, color)
+   MSTACK:AddMessage(text, color)
 end
 net.Receive("TTT_GameMsgColor", ReceiveCustomMsg)
