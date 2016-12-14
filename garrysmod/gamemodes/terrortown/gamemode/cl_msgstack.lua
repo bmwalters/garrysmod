@@ -201,24 +201,20 @@ end
 -- Game state message channel
 local function ReceiveGameMsg()
    local text = net.ReadString()
-   local special = net.ReadBit() == 1
+   local traitor_only = net.ReadBool()
 
    print(text)
 
-   MSTACK:AddMessage(text, special)
+   MSTACK:AddMessage(text, traitor_only)
 end
 net.Receive("TTT_GameMsg", ReceiveGameMsg)
 
 local function ReceiveCustomMsg()
    local text = net.ReadString()
-   local clr = Color(255, 255, 255)
-
-   clr.r = net.ReadUInt(8)
-   clr.g = net.ReadUInt(8)
-   clr.b = net.ReadUInt(8)
+   local color = net.ReadColor()
 
    print(text)
 
-   MSTACK:AddColoredMessage(text, clr)
+   MSTACK:AddColoredMessage(text, color)
 end
 net.Receive("TTT_GameMsgColor", ReceiveCustomMsg)

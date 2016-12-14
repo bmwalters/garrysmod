@@ -13,7 +13,7 @@ local IsValid = IsValid
 function GameMsg(msg)
    net.Start("TTT_GameMsg")
       net.WriteString(msg)
-      net.WriteBit(false)
+      net.WriteBool(false)
    net.Broadcast()
 end
 
@@ -22,9 +22,7 @@ function CustomMsg(ply_or_rf, msg, clr)
 
    net.Start("TTT_GameMsgColor")
       net.WriteString(msg)
-      net.WriteUInt(clr.r, 8)
-      net.WriteUInt(clr.g, 8)
-      net.WriteUInt(clr.b, 8)
+      net.WriteColor(clr)
    if ply_or_rf then net.Send(ply_or_rf)
    else net.Broadcast() end
 end
@@ -33,7 +31,7 @@ end
 function PlayerMsg(ply_or_rf, msg, traitor_only)
    net.Start("TTT_GameMsg")
       net.WriteString(msg)
-      net.WriteBit(traitor_only)
+      net.WriteBool(traitor_only)
    if ply_or_rf then net.Send(ply_or_rf)
    else net.Broadcast() end
 end
