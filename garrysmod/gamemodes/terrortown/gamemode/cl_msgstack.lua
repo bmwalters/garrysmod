@@ -15,14 +15,12 @@ local draw = draw
 local pairs = pairs
 
 -- Constants for configuration
-local msgfont = "DefaultBold"
+MSTACK.msgfont = "DefaultBold"
 
 local margin = 6
 local msg_width = 400
 
 local text_width = msg_width - (margin * 3) -- three margins for a little more room
-
-local text_height = draw.GetFontHeight(msgfont)
 
 local top_y = margin
 local top_x = ScrW() - margin - msg_width
@@ -36,7 +34,7 @@ local fadeout = 0.6
 local movespeed = 2
 
 -- Text colors to render the messages in
-local msgcolors = {
+MSTACK.msgcolors = {
    traitor_text = COLOR_RED,
    generic_text = COLOR_WHITE,
 
@@ -50,7 +48,7 @@ function MSTACK:AddColoredMessage(text, clr)
    local item = {}
    item.text = text
    item.col = clr
-   item.bg  = msgcolors.generic_bg
+   item.bg  = self.msgcolors.generic_bg
 
    self:AddMessageEx(item)
 end
@@ -58,7 +56,7 @@ end
 function MSTACK:AddColoredBgMessage(text, bg_clr)
    local item = {}
    item.text = text
-   item.col  = msgcolors.generic_text
+   item.col  = self.msgcolors.generic_text
    item.bg   = bg_clr
 
    self:AddMessageEx(item)
@@ -66,16 +64,16 @@ end
 
 -- Internal
 function MSTACK:AddMessageEx(item)
-   item.col = table.Copy(item.col or msgcolors.generic_text)
+   item.col = table.Copy(item.col or self.msgcolors.generic_text)
    item.col.a_max = item.col.a
 
-   item.bg  = table.Copy(item.bg or msgcolors.generic_bg)
+   item.bg  = table.Copy(item.bg or self.msgcolors.generic_bg)
    item.bg.a_max = item.bg.a
 
    item.text = self:WrapText(item.text, text_width)
    -- Height depends on number of lines, which is equal to number of table
    -- elements of the wrapped item.text
-   item.height = (#item.text * text_height) + (margin * (1 + #item.text))
+   item.height = (#item.text * draw.GetFontHeight(self.msgfont)) + (margin * (1 + #item.text))
 
    item.time = CurTime()
    item.sounded = false
@@ -96,20 +94,21 @@ end
 -- is a special traitor-only message that traitors should pay attention to.
 -- Use the newer AddColoredMessage if you want special colours.
 function MSTACK:AddMessage(text, traitor_only)
-   self:AddColoredBgMessage(text, traitor_only and msgcolors.traitor_bg or msgcolors.generic_bg)
+   local color = traitor_only and self.msgcolors.traitor_bg or self.msgcolors.generic_bg
+   self:AddColoredBgMessage(text, color)
 end
 
 -- Oh joy, I get to write my own wrapping function. Thanks Lua!
 -- Splits a string into a table of strings that are under the given width.
 function MSTACK:WrapText(text, width)
-   surface.SetFont(msgfont)
+   surface.SetFont(self.msgfont)
 
    -- Any wrapping required?
    local w, _ = surface.GetTextSize(text)
    if w <= width then
       return {text} -- Nope, but wrap in table for uniformity
    end
-   
+
    local words = string.Explode(" ", text) -- No spaces means you're screwed
 
    local lines = {""}
@@ -132,7 +131,6 @@ end
 
 local msg_sound = Sound("Hud.Hint")
 local base_spec = {
-   font = msgfont,
    xalign = TEXT_ALIGN_CENTER,
    yalign = TEXT_ALIGN_TOP
 };
@@ -173,20 +171,20 @@ function MSTACK:Draw(client)
          local height = item.height
 
          -- Background box
-         item.bg.a = math.Clamp(alpha, 0, item.bg.a_max)
          draw.RoundedBox(8, top_x, y, msg_width, height, item.bg)
 
          -- Text
          item.col.a = math.Clamp(alpha, 0, item.col.a_max)
 
          local spec = base_spec
+         spec.font = self.msgfont
          spec.color = item.col
 
          for i = 1, #item.text do
             spec.text=item.text[i]
 
             local tx = top_x + (msg_width / 2)
-            local ty = y + margin + (i - 1) * (text_height + margin)
+            local ty = y + margin + (i - 1) * (draw.GetFontHeight(self.msgfont) + margin)
             spec.pos={tx, ty}
 
             draw.TextShadow(spec, 1, alpha)
