@@ -129,7 +129,6 @@ function MSTACK:WrapText(text, width)
    return lines
 end
 
-local msg_sound = Sound("Hud.Hint")
 local base_spec = {
    xalign = TEXT_ALIGN_CENTER,
    yalign = TEXT_ALIGN_TOP
@@ -142,7 +141,7 @@ function MSTACK:Draw(client)
    for k, item in pairs(self.msgs) do
       if item.time < CurTime() then
          if item.sounded == false then
-            client:EmitSound(msg_sound, 80, 250)
+            surface.PlaySound("Hud.Hint")
             item.sounded = true
          end
 
