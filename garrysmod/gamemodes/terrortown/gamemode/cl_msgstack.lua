@@ -20,11 +20,6 @@ MSTACK.msgfont = "DefaultBold"
 local margin = 6
 local msg_width = 400
 
-local text_width = msg_width - (margin * 3) -- three margins for a little more room
-
-local top_y = margin
-local top_x = ScrW() - margin - msg_width
-
 local staytime = 12
 local max_items = 8
 
@@ -59,7 +54,7 @@ function MSTACK:AddMessage(text, color, background_color)
    item.bg  = table.Copy(background_color or self.msgcolors.generic_bg)
    item.bg.a_max = item.bg.a
 
-   item.text = self:WrapText(text, text_width)
+   item.text = self:WrapText(text, msg_width - margin)
    -- Height depends on number of lines, which is equal to number of table
    -- elements of the wrapped item.text
    item.height = (#item.text * draw.GetFontHeight(self.msgfont)) + (margin * (1 + #item.text))
@@ -83,35 +78,8 @@ function MSTACK:AddRoleMessage(text, role)
    self:AddMessage(text, self.msgcolors.generic_text, self.rolecolors[role])
 end
 
--- Oh joy, I get to write my own wrapping function. Thanks Lua!
 -- Splits a string into a table of strings that are under the given width.
 function MSTACK:WrapText(text, width)
-   surface.SetFont(self.msgfont)
-
-   -- Any wrapping required?
-   local w, _ = surface.GetTextSize(text)
-   if w <= width then
-      return {text} -- Nope, but wrap in table for uniformity
-   end
-
-   local words = string.Explode(" ", text) -- No spaces means you're screwed
-
-   local lines = {""}
-   for i, wrd in pairs(words) do
-      local l = #lines
-      local added = lines[l] .. " " .. wrd
-      w, _ = surface.GetTextSize(added)
-
-      if w > text_width then
-         -- New line needed
-         table.insert(lines, wrd)
-      else
-         -- Safe to tack it on
-         lines[l] = added
-      end
-   end
-
-   return lines
 end
 
 local base_spec = {
@@ -122,7 +90,9 @@ local base_spec = {
 function MSTACK:Draw(client)
    if next(self.msgs) == nil then return end -- fast empty check
 
-   local running_y = top_y
+   local top_x = ScrW() - margin - msg_width
+   local running_y = margin
+
    for k, item in pairs(self.msgs) do
       if item.time < CurTime() then
          if item.sounded == false then
